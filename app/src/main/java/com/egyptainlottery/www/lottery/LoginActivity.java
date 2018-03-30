@@ -39,13 +39,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_login);
 
-        Intent intent = getIntent();
-        Log.e("test",intent.getStringExtra("uName"));
+//        Intent intent = getIntent();
+//        Log.e("test",intent.getStringExtra("uName"));
 
-        final WebView webview = (WebView) findViewById(R.id.wv);
+        WebView webview = (WebView) findViewById(R.id.wv);
         //声明WebSettings子类
         WebSettings webSettings = webview.getSettings();
 
@@ -97,11 +96,11 @@ public class LoginActivity extends AppCompatActivity {
                     LoginActivity.this.finish();
                 }
             }
-            @Override
-            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse){
-                System.out.print(errorResponse);
-                System.out.print(request);
-            }
+//            @Override
+//            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse){
+//                System.out.print(errorResponse);
+//                System.out.print(request);
+//            }
         });
 //        webView.loadUrl("http://www.jsers.cn");
     }
