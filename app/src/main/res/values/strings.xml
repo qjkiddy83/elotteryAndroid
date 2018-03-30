@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Egyptian Lottery</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_main">Egyptian Lottery</string>
+    <string name="button">Button</string>
+    <string name="reload">Reload</string>
+</resources>
