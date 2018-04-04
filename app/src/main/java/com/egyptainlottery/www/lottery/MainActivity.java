@@ -5,12 +5,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Window;
 import android.webkit.*;
@@ -127,6 +130,27 @@ public class MainActivity extends AppCompatActivity {
         //设置自适应屏幕，两者合用
         webSettings.setUseWideViewPort(true); //将图片调整到适合webview的大小
         webSettings.setLoadWithOverviewMode(true); // 缩放至屏幕的大小
+        webview.setInitialScale(3);
+
+//        DisplayMetrics metrics = new DisplayMetrics();
+//        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//        int mDensity = metrics.densityDpi;
+//        if (mDensity == 240) {
+//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+//        } else if (mDensity == 160) {
+//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+//        } else if(mDensity == 120) {
+//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
+//        }else if(mDensity == DisplayMetrics.DENSITY_XHIGH){
+//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+//        }else if (mDensity == DisplayMetrics.DENSITY_TV){
+//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+//        }else{
+//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+//        }
+//        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+
+
 //        //缩放操作
 //        webSettings.setSupportZoom(true); //支持缩放，默认为true。是下面那个的前提。
 //        webSettings.setBuiltInZoomControls(true); //设置内置的缩放控件。若为false，则该WebView不可缩放
@@ -143,6 +167,22 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowFileAccess(true);
         webSettings.setAppCacheEnabled(true);
 
+        //设置ua
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0);
+            //获取APP版本versionName
+            String versionName = packageInfo.versionName;
+            //获取APP版本versionCode
+            int versionCode = packageInfo.versionCode;
+            String ua = webSettings.getUserAgentString();
+            webSettings.setUserAgentString(ua + ";lotteryVersion:"+versionCode+";lotteryVersionName:"+versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //页面alert 代理
         webview.setWebChromeClient(new WebChromeClient(){
             @Override
             public boolean onJsAlert(WebView view, String url, String message,
@@ -196,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         webview.loadUrl("http://lottery.yubaxi.com/");
+//        webview.loadUrl("http://192.168.11.194:8080");
     }
 
 }
