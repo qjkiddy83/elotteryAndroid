@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
@@ -15,12 +16,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.TouchDelegate;
+import android.view.View;
 import android.view.Window;
 import android.webkit.*;
-import android.widget.Toast;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import java.lang.reflect.Field;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -97,20 +98,21 @@ public class MainActivity extends AppCompatActivity {
         webView.loadUrl(uri);
     }
 
+    private float getScale() {
+        DisplayMetrics display = this.getResources().getDisplayMetrics();
+        int width = display.widthPixels;
+        Float val = Float.valueOf(width) / Float.valueOf(1080);
+        System.out.print(String.valueOf(val));
+        return val.floatValue();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == MainActivity.REQUESTCODE1){
-//            Log.e("test",data.getStringExtra("uName"));
             String uri = data.getStringExtra("uri");
-//            Toast.makeText(MainActivity.this,uri,Toast.LENGTH_SHORT);
-//            try {
-//                Thread.currentThread();
-//                Thread.sleep(1000);
             WebView webView = (WebView) findViewById(R.id.wv);
             webView.loadUrl("javascript:loginCallback('"+uri+"')");
-//            MainActivity.this.reload(uri);
-//            }catch (Exception e){}
         }
     }
 
@@ -120,41 +122,26 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        final WebView webview = (WebView) findViewById(R.id.wv);
+        final WebView webview = findViewById(R.id.wv);
         //声明WebSettings子类
         WebSettings webSettings = webview.getSettings();
 
         //如果访问的页面中要与Javascript交互，则webview必须设置支持Javascript
         webSettings.setJavaScriptEnabled(true);
+        webSettings.setLoadsImagesAutomatically(true);
+        webSettings.setDefaultTextEncodingName("UTF-8");
 
         //设置自适应屏幕，两者合用
         webSettings.setUseWideViewPort(true); //将图片调整到适合webview的大小
         webSettings.setLoadWithOverviewMode(true); // 缩放至屏幕的大小
-        webview.setInitialScale(3);
+        webview.setInitialScale(Float.valueOf(getScale()*100).intValue());
 
-//        DisplayMetrics metrics = new DisplayMetrics();
-//        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//        int mDensity = metrics.densityDpi;
-//        if (mDensity == 240) {
-//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
-//        } else if (mDensity == 160) {
-//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-//        } else if(mDensity == 120) {
-//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
-//        }else if(mDensity == DisplayMetrics.DENSITY_XHIGH){
-//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
-//        }else if (mDensity == DisplayMetrics.DENSITY_TV){
-//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
-//        }else{
-//            webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-//        }
-//        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        //缩放操作
+        webSettings.setBuiltInZoomControls(false);
+        webSettings.setSupportZoom(false);
+        webSettings.setDisplayZoomControls(false);
 
-
-//        //缩放操作
-//        webSettings.setSupportZoom(true); //支持缩放，默认为true。是下面那个的前提。
-//        webSettings.setBuiltInZoomControls(true); //设置内置的缩放控件。若为false，则该WebView不可缩放
-//        webSettings.setDisplayZoomControls(false); //隐藏原生的缩放控件
+        //滚动条
         webview.setVerticalScrollBarEnabled(false);
 
         //允许通过chrome调试webview页面
@@ -162,10 +149,10 @@ public class MainActivity extends AppCompatActivity {
 
         //允许本地缓存
         webSettings.setDomStorageEnabled(true);
-        String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
-        webSettings.setAppCachePath(appCachePath);
+        webSettings.setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());
         webSettings.setAllowFileAccess(true);
         webSettings.setAppCacheEnabled(true);
+        webSettings.setDatabaseEnabled(true);
 
         //设置ua
         PackageInfo packageInfo = null;
@@ -182,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //页面alert 代理
         webview.setWebChromeClient(new WebChromeClient(){
+            //页面alert 代理
             @Override
             public boolean onJsAlert(WebView view, String url, String message,
                                      final JsResult result) {
@@ -201,13 +188,12 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
         webview.setWebViewClient(new WebViewClient(){
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-//                Toast.makeText(Main2Activity.this,url,Toast.LENGTH_SHORT).show();
                 if(url.equals("http://manage.yubaxi.com/redirect")){
                     Intent i = new Intent(MainActivity.this,LoginActivity.class);
-//                    i.putExtra("uName", "legend");
                     startActivityForResult(i, REQUESTCODE1 );
                 }else {
                     view.loadUrl(url);
@@ -215,11 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
 
-            @Override
-            public void onPageFinished(WebView view, String url){
-                CookieManager cookieManager = CookieManager.getInstance();
-//                Log.e("test",cookieManager.getCookie(url));
-            }
         });
 
         webview.setDownloadListener(new DownloadListener() {
@@ -228,14 +209,17 @@ public class MainActivity extends AppCompatActivity {
                 //使用默认浏览器下载
                 downloadByBrowser(url);
                 //使用系统下载器 测试发现安卓4.4自动启动安装失败
-//                downloadBySystem(url,userAgent,contentDisposition,mimetype);
-//                DownloadCompleteReceiver receiver = new DownloadCompleteReceiver();
-//                IntentFilter intentFilter = new IntentFilter();
-//                intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-//                registerReceiver(receiver, intentFilter);
+                /*
+                downloadBySystem(url,userAgent,contentDisposition,mimetype);
+                DownloadCompleteReceiver receiver = new DownloadCompleteReceiver();
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+                registerReceiver(receiver, intentFilter);
+                */
             }
         });
         webview.loadUrl("http://lottery.yubaxi.com/");
+//        webview.loadUrl("http://www.jsers.cn/demo/test.html");
 //        webview.loadUrl("http://192.168.11.194:8080");
     }
 
