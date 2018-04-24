@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        final WebView webview = findViewById(R.id.wv);
+        final MWebView webview = findViewById(R.id.wv);
         //声明WebSettings子类
         WebSettings webSettings = webview.getSettings();
 
@@ -218,9 +218,9 @@ public class MainActivity extends AppCompatActivity {
                 */
             }
         });
-        webview.loadUrl("http://lottery.yubaxi.com/");
+//        webview.loadUrl("http://lottery.yubaxi.com/");
 //        webview.loadUrl("http://www.jsers.cn/demo/test.html");
-//        webview.loadUrl("http://192.168.11.194:8080");
+        webview.loadUrl("http://192.168.11.194:8080");
     }
 
 }

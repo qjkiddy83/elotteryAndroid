@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <WebView
+    <com.egyptainlottery.www.lottery.MWebView
             android:id="@+id/wv"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-    </WebView>
+    </com.egyptainlottery.www.lottery.MWebView>
 
 </android.support.design.widget.CoordinatorLayout>
